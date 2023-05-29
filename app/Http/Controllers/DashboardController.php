@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
-use function Symfony\Component\Console\Helper\fillNextRows;
 
 class DashboardController extends Controller
 {
@@ -15,7 +14,10 @@ class DashboardController extends Controller
      */
     public function __invoke(Request $request)
     {
-        ray()->showQueries();
+        $request->validate([
+            'column'=>'in:name, ,email',
+            'direction'=>'in:asc,desc'
+        ]);
 
         return view("dashboard", [
             "users" => User::query()

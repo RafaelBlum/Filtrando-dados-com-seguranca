@@ -43,9 +43,9 @@ em uma lista de usuários `não admin`.
      ->get()
 ```
 
-- Nesta busca conseguimos todos registros, `mas a query seleciona também usuários admin` -> o que não pode!.
-- O problema desta expresão logica é que qualquer uma das três condições que resultar em verdadeiro, ele vai trazer. 
-- Se nome diferente de falso, se nome conter a string OU se no email tiver a string.
+> Nesta busca conseguimos todos registros, `mas a query seleciona também usuários admin` -> **o que não pode!**.
+> O problema desta expresão logica é que qualquer uma das três condições que resultar em verdadeiro, ele vai trazer. 
+> Se nome diferente de falso, se nome conter a string OU se no email tiver a string.
 
 - Para solucionar este problemas, é que NÃO podemos trazer não admins, 
 então a condição `admin = false` é obrigatoria e o restante das condições devem estar entre parenteses.
@@ -80,11 +80,23 @@ então a condição `admin = false` é obrigatoria e o restante das condições 
 
 - Na query acima, caso o name `search` tenha sido preenchido, é verdadeiro e assim entra nas condições.
 
-##### Escopos de consulta - Globais
+##### Utilizando um escopo local
+> Os escopos locais permitem que você defina conjuntos comuns de restrições de consulta que podem ser facilmente 
+> reutilizados em todo o aplicativo. Por exemplo, pode ser necessário recuperar com frequência todos os usuários 
+> considerados `populares`. Para definir um escopo, prefixe um método de modelo Eloquent com `scope`.
+  
+- Os escopos sempre devem retornar a mesma instância do construtor de consultas ou `void`:
 
-- Os escopos globais permitem adicionar restrições a todas as consultas para um determinado modelo.
-- Escrever seus próprios escopos globais pode fornecer uma maneira fácil e conveniente de garantir que cada 
-consulta para um determinado modelo receba certas restrições.
+ ```
+    public function scopeSearch(Builder $q, string $search)
+    {
+        return $q->where('name', 'like', '%'. request()->search . '%')
+                 ->orWhere('email', 'like', '%'. request()->search . '%');
+    }
+ ```
+
+- Uma vez definido o escopo, você pode chamar os métodos de escopo ao consultar o modelo. No entanto, você não deve 
+ incluir o `scope` prefixo ao chamar o método. Você pode até mesmo encadear chamadas para vários escopos:
 
  ```
     User::query()
@@ -93,16 +105,6 @@ consulta para um determinado modelo receba certas restrições.
             \request()->filled('search'), fn(Builder $query) => $query->search(\request()->search)
         )
         ->get()
- ```
-
-- E no modelo do usuário, podemos add um scopo.
-
- ```
-    public function scopeSearch(Builder $q, string $search)
-    {
-        return $q->where('name', 'like', '%'. request()->search . '%')
-                 ->orWhere('email', 'like', '%'. request()->search . '%');
-    }
  ```
 
 
@@ -156,5 +158,6 @@ Contatos 👇🏼 [rafaelblum_digital@hotmail.com]
 [![GitHub RafaelBlum](https://img.shields.io/github/followers/RafaelBlum?label=follow&style=social)](https://github.com/RafaelBlum)
 
 <br/>
+
 
 <img src="https://media.giphy.com/media/LnQjpWaON8nhr21vNW/giphy.gif" width="60"> <em><b>Adoro me conectar com pessoas diferentes,</b> então se você quiser dizer <b>oi, ficarei feliz em conhecê-lo mais!</b> :)</em>
